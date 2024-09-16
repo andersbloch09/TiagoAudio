@@ -111,6 +111,8 @@ def remove_symbols_except_punctuation(text):
 
 if __name__ == '__main__':
     rospy.init_node('say_something')
+    # Initialize the rate object with desired frequency (Hz)
+    #rate = rospy.Rate(10)  # 10 Hz
 
     # Define the URL of OLLAMA (VLM and LLM)
     url = "http://130.225.39.157:11434/api/generate"
@@ -125,7 +127,10 @@ if __name__ == '__main__':
     else:
         message = ""
     recognizer = sr.Recognizer()
-    microphone = sr.Microphone()
+    
+    mic_index = 5
+
+    microphone = sr.Microphone(device_index=mic_index)
     # Connect to the text-to-speech action server
     client = SimpleActionClient('/tts', TtsAction)
     client.wait_for_server()
@@ -133,13 +138,13 @@ if __name__ == '__main__':
         # call main function
         #message = raw_input("User: ")
         if message != "":
-            message = message + ". Do not answer with more than 10 words!"
+            message = message + ". Do not answer with more than 10 words and answer as you are a Tiago robot which is used for development on a project \
+            including AI llm and vlm to help people. You will in the future be able to interact with people and object. For example handing items to people."
             print(message)
             response = agent(message, url, llm_model[0])
             
             response = remove_symbols_except_punctuation(response)
             rospy.loginfo("I'll say: " + response)
-            
 
             # Create a goal to say our sentence
             goal = TtsGoal()
@@ -152,7 +157,7 @@ if __name__ == '__main__':
             print("Listening...")
             try:
                 # Listen for audio
-                audio = recognizer.listen(source, timeout=1)
+                audio = recognizer.listen(source, timeout=2)
                 
                 # Recognize speech using Google Speech Recognition
                 message = recognizer.recognize_google(audio)
